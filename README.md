@@ -66,3 +66,46 @@ summary(gsg)
 #sanity check, all samples should pass this check
 
 plot(hclust(dist(vsdinput),method="average"))
+```
+### pick power for the model
+```
+#select power by looking at the plot
+power <- c(c(1:10), seq(from = 12, to = 50, by = 2))
+
+allowWGCNAThreads()
+sft <- pickSoftThreshold(vsdinput,
+powerVector = power,
+networkType = "unsigned",
+verbose = 5)
+sft.data <- sft$fitIndices
+a1 <- ggplot(sft.data, aes(Power, SFT.R.sq, label = Power)) +
+geom_point() +
+geom_text(nudge_y = 0.1) +
+geom_hline(yintercept = 0.90, color = 'red') +
+labs(x = 'Power', y = 'Scale free topology model fit, unsigned R^2') +
+theme_classic()
+a2 <- ggplot(sft.data, aes(Power, mean.k., label = Power)) +
+geom_point() +
+geom_text(nudge_y = 0.1) +
+labs(x = 'Power', y = 'Mean Connectivity') +
+theme_classic()
+grid.arrange(a1, a2, nrow = 2)
+```
+### select the power (in my case 10) and run the function to create the actual modules.  In this example, I am using 'unsigned'
+```
+soft_power <- 10
+temp_cor <- cor
+cor <- WGCNA::cor
+bwnet <- blockwiseModules(vsdinput,
+maxBlockSize = 14000,
+TOMType = "unsigned",
+power = soft_power,
+mergeCutHeight = 0.25,
+numericLabels = FALSE,
+randomSeed = 1234,
+verbose = 3)
+cor <- temp_cor
+module_eigengenes <- bwnet$MEs
+#display numbers of genes in each module
+table(bwnet$colors)
+```
