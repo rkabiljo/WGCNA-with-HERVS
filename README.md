@@ -47,3 +47,22 @@ dim(assay(vsd))
 #[1] 19044   171
 write.table(assay(vsd),file="vsd_norm_filtered_sep_forWGCNA.txt",sep="\t",quote=FALSE)
 ```
+
+## WGCNA
+Load the libraries
+```
+library(tidyverse)
+library(magrittr)
+library(WGCNA)
+library(CorLevelPlot)
+```
+Either continue with the assay(vsd) from above, or read it in from the file we saved earlier
+
+```
+vsdinput = t(assay(vsd))
+
+gsg<-goodSamplesGenes(vsdinput)
+summary(gsg)
+#sanity check, all samples should pass this check
+
+plot(hclust(dist(vsdinput),method="average"))
