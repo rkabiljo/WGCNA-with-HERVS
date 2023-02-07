@@ -38,3 +38,12 @@ gene_erv_cts<-rbind(counts(dds_genes),counts(dds_ervs))
 rm(dds_genes)
 rm(dds_ervs)
 ```
+
+## vsd normalise and save the normalised table for WGCNA
+```
+dds_genes <- DESeqDataSetFromMatrix(countData = gene_erv_cts, colData = phe , design = ~ Sex + AgeCat + Status)
+vsd <- vst(dds_genes, blind = TRUE)
+dim(assay(vsd))
+#[1] 19044   171
+write.table(assay(vsd),file="vsd_norm_filtered_sep_forWGCNA.txt",sep="\t",quote=FALSE)
+```
