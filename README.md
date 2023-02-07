@@ -109,3 +109,12 @@ module_eigengenes <- bwnet$MEs
 #display numbers of genes in each module
 table(bwnet$colors)
 ```
+### plot 
+```
+mergedColors = labels2colors(bwnet$colors)
+plotDendroAndColors(bwnet$dendrograms[[1]], mergedColors[bwnet$blockGenes[[1]]], "Module colors", dendroLabels = FALSE, hang = 0.03, addGuide = TRUE, guideHang = 0.05 )
+#save the table of which gene is in which module
+module_df <- data.frame(gene_id = names(bwnet$colors), colors = labels2colors(bwnet$colors))
+head(module_df)`
+write.table(module_df, file = "gene_modules_WGCNA_power10_mergeheight0.25_unsigned.txt", sep = "\t")
+```
