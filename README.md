@@ -97,7 +97,7 @@ soft_power <- 10
 temp_cor <- cor
 cor <- WGCNA::cor
 bwnet <- blockwiseModules(vsdinput,
-maxBlockSize = 14000,
+maxBlockSize = 20000,
 TOMType = "unsigned",
 power = soft_power,
 mergeCutHeight = 0.25,
@@ -112,9 +112,95 @@ table(bwnet$colors)
 ### plot 
 ```
 mergedColors = labels2colors(bwnet$colors)
-plotDendroAndColors(bwnet$dendrograms[[1]], mergedColors[bwnet$blockGenes[[1]]], "Module colors", dendroLabels = FALSE, hang = 0.03, addGuide = TRUE, guideHang = 0.05 )
-#save the table of which gene is in which module
-module_df <- data.frame(gene_id = names(bwnet$colors), colors = labels2colors(bwnet$colors))
-head(module_df)`
-write.table(module_df, file = "gene_modules_WGCNA_power10_mergeheight0.25_unsigned.txt", sep = "\t")
+
+plotDendroAndColors(bwnet$dendrograms[[1]], cbind(bwnet$unmergedColors, bwnet$colors),
+c("unmerged", "merged"),
+dendroLabels = FALSE,
+addGuide = TRUE,
+hang= 0.03,
+guideHang = 0.05)
+```
+### save the module colours
+```
+write.table(as.data.frame(bwnet$colors),"moduleColors.txt",sep="\t")
+```
+### separate into ervs and genes so that we can count where ervs are
+```
+modules <- as.data.frame(bwnet$colors)
+modules$erv<-NA
+modules$erv[!grepl("ENSG",rownames(modules))] <- 1
+modules$erv[grepl("ENSG",rownames(modules))] <- 0
+head(modules)
+colnames(modules)<-c("module","erv")
+table(modules$module,modules$erv)
+library(tigerstats)
+rowPerc(xtabs(~  module + erv, data=modules))
+
+#sanity check, how many ervs and genes there are
+sum(modules$erv ==1, na.rm=TRUE)
+sum(modules$erv ==0, na.rm=TRUE)
+
+#get colours for ervs of interest
+modules[c("6009","4444","5346","943","2716","1412","4174","W-106"),]
+#siginificant DE ervs in KCL BB
+BBsigErvs<-modules[c("2574","6253","2476","5480","6251","5346","3145","2658","2845","4310",
+"K-50","3656","4243","4444","3949","2982","2449","5833","6285","4184","3346",
+"2377","3176","4490","849","5658","704","3922","4613","4146"),]
+dim(BBsigErvs)
+write.table(BBsigErvs,"BBsigERVS_perModule.txt",quote=FALSE,sep="\t")
+```
+
+#### This is specific to KCL BB, where I have phenotype info in two tables that need merging
+Skip this and make sure you have traits table which is numeric. The last two lines below are the trick to turn the matrix in numeric
+```
+phe2 <-read.table("BrainBankPheno.csv",sep=",",header=TRUE,row.names = 1)
+test<-merge(phe,phe2,by=0,all=TRUE)
+dim(test)
+head(test)
+rownames(test)<-test$Row.names
+traits<-test[,c("Status","AgeCat","Age_Onset","disease_duration_days","Age")]
+
+bckTraits<-traits
+charData = apply(as.matrix(traits), 2, as.character);
+traits = apply(charData, 2, as.numeric)
+```
+### Module Trait Correlation
+```
+nSamples <- nrow(vsdinput)
+nGenes <- ncol(vsdinput)
+module.trait.corr <- cor(module_eigengenes, traits, use = 'p')
+module.trait.corr.pvals <- corPvalueStudent(module.trait.corr, nSamples)
+heatmap.data <- merge(module_eigengenes, traits, by = 'row.names')
+head(heatmap.data)
+heatmap.data <- heatmap.data %>%
+column_to_rownames(var = 'Row.names')
+```
+For the plot, look at the heatmap.data to select the columns which are the phenotype data.  in my case, these are columns 17 to 21
+```
+CorLevelPlot(heatmap.data,
+x = names(heatmap.data)[17:21],
+y = names(heatmap.data)[1:16],
+col = c("blue1", "skyblue", "white", "pink", "red"))
+)
+```
+
+### Get genes in a module
+```
+module.gene.mapping <- as.data.frame(bwnet$colors)
+module.gene.mapping %>%
+filter(`bwnet$colors` == 'cyan') %>%
+rownames()
+```
+
+### Module membership meaasure - to get the leading genes that represent a module
+```
+module.membership.measure <- cor(module_eigengenes, vsdinput, use = 'p')
+module.membership.measure.pvals <- corPvalueStudent(module.membership.measure, nSamples)
+module.membership.measure.pvals[1:10,1:10]
+gene.signf.corr <- cor(vsdinput, traits[,'Age'], use = 'p')
+gene.signf.corr.pvals <- corPvalueStudent(gene.signf.corr, nSamples)
+gene.signf.corr.pvals %>%
+as.data.frame() %>%
+arrange(V1) %>%
+head(25)
 ```
