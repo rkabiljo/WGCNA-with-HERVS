@@ -175,7 +175,8 @@ head(heatmap.data)
 heatmap.data <- heatmap.data %>%
 column_to_rownames(var = 'Row.names')
 ```
-For the plot, look at the heatmap.data to select the columns which are the phenotype data.  in my case, these are columns 17 to 21
+For the plot, look at the heatmap.data to select the columns which are the phenotype data.  in my case, these are columns 17 to 21, and these will
+go to the X-axis.  In y axis put all the columns that are module eigengenes
 ```
 CorLevelPlot(heatmap.data,
 x = names(heatmap.data)[17:21],
