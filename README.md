@@ -172,6 +172,8 @@ module.trait.corr <- cor(module_eigengenes, traits, use = 'p')
 module.trait.corr.pvals <- corPvalueStudent(module.trait.corr, nSamples)
 heatmap.data <- merge(module_eigengenes, traits, by = 'row.names')
 head(heatmap.data)
+
+#if the first column is the actual rownames, run the following to fix it
 heatmap.data <- heatmap.data %>%
 column_to_rownames(var = 'Row.names')
 ```
@@ -198,6 +200,10 @@ rownames()
 module.membership.measure <- cor(module_eigengenes, vsdinput, use = 'p')
 module.membership.measure.pvals <- corPvalueStudent(module.membership.measure, nSamples)
 module.membership.measure.pvals[1:10,1:10]
+```
+
+### Genes correlated with phenotype
+```
 gene.signf.corr <- cor(vsdinput, traits[,'Age'], use = 'p')
 gene.signf.corr.pvals <- corPvalueStudent(gene.signf.corr, nSamples)
 gene.signf.corr.pvals %>%
