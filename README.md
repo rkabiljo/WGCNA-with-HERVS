@@ -4,6 +4,7 @@
 Filter raw gene matrix and raw erv matrix separately (because ERVs have lower counts and too many are lost when gene filter is applied to them).
 
 ```
+phe <- read.table("~/Documents/TelescopeDiffExp/samples.design.updated.sv1.171subjects.txt",row.names=1,header=T,check.names=FALSE)
 gene_cts <- read.table("~/Documents/TelescopeDiffExp/geneMatrixEdited.txt",row.names=1,header=T,check.names=FALSE)
 gene_cts<-gene_cts[,rownames(phe)]
 cts <- read.table("~/Documents/BrainBank_DE_HERVS/merged_ervs_raw.txt",row.names=1,header=T,check.names=FALSE)
