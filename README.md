@@ -48,6 +48,13 @@ dim(assay(vsd))
 #[1] 19044   171
 write.table(assay(vsd),file="vsd_norm_filtered_sep_forWGCNA.txt",sep="\t",quote=FALSE)
 ```
+If you are starting from here, read the file like this:
+
+```
+forInput<-read.table("vsd_norm_filtered_sep_forWGCNA.txt",sep="\t",header=TRUE,row.names=1)
+vsdinput<-t(forInput)
+```
+and then pick up frome there
 
 ## WGCNA
 Load the libraries
