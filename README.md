@@ -185,7 +185,7 @@ CorLevelPlot(heatmap.data,
 x = names(heatmap.data)[17:21],
 y = names(heatmap.data)[1:16],
 col = c("blue1", "skyblue", "white", "pink", "red"))
-)
+
 ```
 
 ### Get genes in a module
